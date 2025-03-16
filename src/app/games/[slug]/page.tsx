@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Download, Star, Trophy, Gamepad2 } from "lucide-react"
+import { Download, Star, Gamepad2 } from "lucide-react"
 import { getAppBySlug } from "@/lib/db"
 import { notFound } from "next/navigation"
 import { AppDetailTabs } from "@/components/apps/app-detail-tabs"
@@ -51,15 +51,9 @@ export default async function GameDetailPage({ params }: Props) {
                 <span>•</span>
                 <span>{gameDetail.downloads.toLocaleString()} indirme</span>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">{gameDetail.rating}</span>
-                </div>
-                <div className="flex items-center gap-2 text-emerald-500">
-                  <Trophy className="h-4 w-4" />
-                  <span className="text-sm font-medium">Editör Seçimi</span>
-                </div>
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm font-medium">{gameDetail.rating}</span>
               </div>
             </div>
           </div>
