@@ -1,12 +1,32 @@
 'use server'
 
 import { getApps } from "@/lib/db"
+import { supabase } from '@/lib/supabase'
 
 export async function searchApps(query: string) {
-  const apps = await getApps()
-  return apps.filter(app => 
-    app.name.toLowerCase().includes(query.toLowerCase())
-  )
+  const { data, error } = await supabase
+    .from('apps')
+    .select(`
+      *,
+      categories:category_id (
+        name,
+        slug
+      )
+    `)
+    .ilike('name', `%${query}%`)
+    .order('downloads', { ascending: false })
+    .limit(10)
+
+  if (error) {
+    console.error('Arama yaparken hata:', error)
+    return []
+  }
+
+  return data.map(app => ({
+    ...app,
+    category: app.categories.name,
+    categorySlug: app.categories.slug
+  }))
 }
 
 export async function sortApps(sortBy: string) {

@@ -2,9 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Menu, Search } from "lucide-react"
+import { Menu } from "lucide-react"
+import { HeaderSearchBar } from "@/components/header-search-bar"
 
 export function Header() {
   return (
@@ -61,14 +61,7 @@ export function Header() {
 
           <div className="hidden md:flex flex-1 items-center justify-end">
             <div className="w-full max-w-[300px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="APK ara..."
-                  className="w-full pl-9 rounded-full bg-muted/50 focus-visible:ring-primary"
-                />
-              </div>
+              <HeaderSearchBar />
             </div>
           </div>
         </div>
