@@ -1,84 +1,116 @@
-import { Badge } from "@/components/ui/badge"
-import { ApkCard } from "@/components/ui/apk-card"
+'use client'
+
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
-import { getApps, getCategories } from "@/lib/db"
+import { ApkCard } from "@/components/ui/apk-card"
+import { CompactApkCard } from "@/components/ui/compact-apk-card"
+import { getApps } from "@/lib/db"
+import { useState, useEffect } from "react"
+import { App } from "@/types"
 
-export default async function Home() {
-  const [apps, categories] = await Promise.all([
-    getApps(),
-    getCategories()
-  ])
+export default function Home() {
+  const [latestApps, setLatestApps] = useState<App[]>([])
+  const [popularApps, setPopularApps] = useState<App[]>([])
+  const [editorsPicks, setEditorsPicks] = useState<App[]>([])
 
-  // Son eklenen 6 uygulamayı göster
-  const featuredApps = apps.slice(0, 6)
+  useEffect(() => {
+    const fetchData = async () => {
+      const apps = await getApps()
+      
+      // En son yüklenenler (son 8 uygulama)
+      setLatestApps(apps.slice(0, 8))
+      
+      // Popüler uygulamalar (şimdilik rastgele 4 uygulama)
+      setPopularApps(apps.slice(8, 12))
+      
+      // Editörün seçimi (şimdilik rastgele 4 uygulama)
+      setEditorsPicks(apps.slice(12, 16))
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
-      <div className="mx-auto max-w-[1200px] px-4 py-8">
+      <div className="mx-auto max-w-[1200px] px-4 py-8 space-y-12">
         {/* Hero Section */}
-        <section className="mb-12">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <h1 className="text-3xl font-bold sm:text-4xl md:text-5xl">
+        <section className="relative">
+          <div className="flex flex-col items-center text-center space-y-6">
+            <h1 className="text-4xl font-bold sm:text-5xl md:text-6xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               APK Realm'e Hoş Geldiniz
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-xl text-muted-foreground max-w-2xl">
               Android uygulamalarını güvenilir kaynaklardan indirin
             </p>
-            <div className="relative w-full max-w-[600px] mt-4">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="APK ara..."
-                    className="w-full pl-9"
-                  />
-                </div>
-                <Button className="bg-black text-white hover:bg-black/90">
-                  Ara
-                </Button>
-              </div>
+            <div className="w-full max-w-2xl relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input 
+                type="search"
+                placeholder="Uygulama veya oyun ara..."
+                className="w-full pl-12 py-6 text-lg rounded-full border-2 hover:border-primary/60 transition-colors"
+              />
             </div>
           </div>
         </section>
 
-        {/* Categories Section */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-semibold mb-4">Kategoriler</h2>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Badge
-                key={category.id}
-                variant="ghost"
-                className="rounded-full py-1.5 px-4 text-sm hover:bg-gray-100 cursor-pointer"
-              >
-                {category.name}
-              </Badge>
+        {/* Editörün Seçimi */}
+        <section className="pb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">Editörün Seçimi</h2>
+          </div>
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+            {editorsPicks.map((app) => (
+              <CompactApkCard
+                key={app.id}
+                name={app.name}
+                version={app.version}
+                icon={app.icon_url}
+                slug={app.package_name}
+                category={app.category}
+              />
             ))}
           </div>
         </section>
 
-        {/* Featured Apps Section */}
+        {/* En Son Yüklenenler */}
         <section>
-          <h2 className="text-2xl font-semibold mb-4">Son Eklenen APK'lar</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredApps.map((app) => (
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">En Son Yüklenenler</h2>
+          </div>
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+            {latestApps.map((app) => (
+              <CompactApkCard
+                key={app.id}
+                name={app.name}
+                version={app.version}
+                icon={app.icon_url}
+                slug={app.package_name}
+                category={app.category}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* Popüler Uygulamalar */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold">Popüler Uygulamalar</h2>
+          </div>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {popularApps.map((app) => (
               <ApkCard
                 key={app.id}
                 name={app.name}
                 category={app.category}
                 version={app.version}
-                size={app.size}
-                downloads={app.downloads.toLocaleString()}
                 isMod={app.is_mod}
                 icon={app.icon_url}
-                slug={app.package_name.replace(/\./g, '-')}
+                slug={app.package_name}
               />
             ))}
           </div>
         </section>
+
+        
       </div>
     </div>
   )
