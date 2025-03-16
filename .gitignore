@@ -51,6 +51,7 @@ build/
 # IDE
 .vscode/
 .idea/
+.cursorrules
 
 # Logs
 *.log
