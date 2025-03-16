@@ -7,13 +7,14 @@ import { notFound } from "next/navigation"
 import { AppDetailTabs } from "@/components/apps/app-detail-tabs"
 
 interface Props {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function AppDetailPage({ params }: Props) {
-  const appDetail = await getAppBySlug(params.slug)
+  const { slug } = await params
+  const appDetail = await getAppBySlug(slug)
 
   if (!appDetail) {
     notFound()
