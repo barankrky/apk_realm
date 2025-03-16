@@ -2,9 +2,16 @@ import puppeteer from 'puppeteer-extra'
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import { Browser, Page } from 'puppeteer'
 import { ScrapedApp, ScraperSource } from './types'
+import axios from 'axios'
 
-// Stealth plugin'i ekle
-puppeteer.use(StealthPlugin())
+// FlareSolverr API endpoint
+const FLARESOLVERR_URL = 'http://localhost:8191/v1'
+
+// Stealth plugin'i gelişmiş ayarlarla ekle
+const stealth = StealthPlugin()
+stealth.enabledEvasions.delete('chrome.runtime')
+stealth.enabledEvasions.delete('defaultArgs')
+puppeteer.use(stealth)
 
 export abstract class BaseScraper implements ScraperSource {
   name: string
@@ -21,16 +28,24 @@ export abstract class BaseScraper implements ScraperSource {
     this.supports_mods = supports_mods
   }
 
-  protected async init() {
+  async init() {
     try {
       if (!this.browser) {
+        // Undetected Chrome ayarları
         this.browser = await puppeteer.launch({
-          headless: false, // Headless modunu etkinleştir
+          headless: false,
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--window-size=1920,1080'
-          ]
+            '--disable-web-security',
+            '--disable-features=IsolateOrigins,site-per-process',
+            '--disable-site-isolation-trials',
+            '--disable-blink-features=AutomationControlled',
+            '--disable-infobars',
+            '--window-size=1920,1080',
+            '--start-maximized'
+          ],
+          ignoreDefaultArgs: ['--enable-automation']
         })
       }
 
@@ -41,7 +56,17 @@ export abstract class BaseScraper implements ScraperSource {
         await this.page.setViewport({
           width: 1920,
           height: 1080,
-          deviceScaleFactor: 1
+          deviceScaleFactor: 1,
+          hasTouch: false,
+          isLandscape: true,
+          isMobile: false
+        })
+
+        // WebDriver özelliğini gizle
+        await this.page.evaluateOnNewDocument(() => {
+          Object.defineProperty(navigator, 'webdriver', { get: () => undefined })
+          Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] })
+          Object.defineProperty(navigator, 'languages', { get: () => ['tr-TR', 'tr', 'en-US', 'en'] })
         })
 
         // User agent ayarla
@@ -50,15 +75,22 @@ export abstract class BaseScraper implements ScraperSource {
         // HTTP başlıkları
         await this.page.setExtraHTTPHeaders({
           'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, br',
+          'Cache-Control': 'max-age=0',
           'Connection': 'keep-alive',
           'Upgrade-Insecure-Requests': '1',
           'Sec-Fetch-Dest': 'document',
-          'Sec-Fetch-Mode': 'navigate', 
+          'Sec-Fetch-Mode': 'navigate',
           'Sec-Fetch-Site': 'none',
-          'Sec-Fetch-User': '?1'
+          'Sec-Fetch-User': '?1',
+          'sec-ch-ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+          'sec-ch-ua-mobile': '?0',
+          'sec-ch-ua-platform': '"Windows"'
         })
+
+        // JavaScript ve cookies aktif
+        await this.page.setJavaScriptEnabled(true)
       }
     } catch (error) {
       console.error('Browser başlatma hatası:', error)
@@ -66,7 +98,7 @@ export abstract class BaseScraper implements ScraperSource {
     }
   }
 
-  protected async close() {
+  async close() {
     if (this.browser) {
       await this.browser.close()
       this.browser = null
@@ -82,18 +114,47 @@ export abstract class BaseScraper implements ScraperSource {
     return this.page
   }
 
+  // FlareSolverr ile URL'i çöz
+  protected async solveCloudflare(url: string): Promise<string> {
+    try {
+      console.log('⌛ Cloudflare çözülüyor...')
+      const response = await axios.post(FLARESOLVERR_URL, {
+        cmd: 'request.get',
+        url,
+        maxTimeout: 60000
+      })
+
+      if (response.data.solution.status === 200) {
+        console.log('✅ Cloudflare çözüldü')
+        return response.data.solution.response
+      }
+
+      throw new Error('Cloudflare çözülemedi')
+    } catch (error) {
+      console.error('❌ Cloudflare çözme hatası:', error)
+      throw error
+    }
+  }
+
   protected async navigateTo(url: string) {
     const page = await this.getPage()
-    await page.goto(url, { 
-      waitUntil: 'networkidle0',
-      timeout: 60000 
-    })
     
-    // Cloudflare korumasını aşmak için bekleme
-    await this.delay(5000)
-    
-    // Sayfanın yüklendiğinden emin ol
-    await page.waitForSelector('body')
+    try {
+      // Önce FlareSolverr ile çöz
+      const html = await this.solveCloudflare(url)
+      
+      // Çözülmüş HTML'i sayfaya yükle
+      await page.setContent(html, {
+        waitUntil: 'networkidle0',
+        timeout: 30000
+      })
+      
+      // Sayfanın yüklendiğinden emin ol
+      await page.waitForSelector('body')
+    } catch (error) {
+      console.error('❌ Sayfa yükleme hatası:', error)
+      throw error
+    }
   }
 
   protected async getText(selector: string): Promise<string> {

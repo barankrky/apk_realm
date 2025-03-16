@@ -1,28 +1,19 @@
 export interface App {
   id: string
   name: string
-  package_name: string
   category: string
   version: string
   size: string
   downloads: number
-  rating: number
   is_mod: boolean
-  mod_features?: string[]
-  description: string
   icon_url: string
-  screenshots: string[]
-  android_version: string
-  developer: string
-  updated_at: string
-  created_at: string
+  package_name: string
+  created_at: number
 }
 
 export interface Category {
   id: string
   name: string
-  slug: string
-  created_at: string
 }
 
 export interface Comment {
