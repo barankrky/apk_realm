@@ -2,12 +2,14 @@
 
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import PopularApps from "@/components/PopularApps";
 
 export default function Home() {
   return (
-    <div>
-      <Header></Header>
+    <main className="bg-black min-h-screen">
+      <Header />
       <Hero />
-    </div>
+      <PopularApps />
+    </main>
   );
 }
