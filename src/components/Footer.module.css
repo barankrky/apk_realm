@@ -1,0 +1,15 @@
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 2rem; /* Adjusted padding instead of fixed height */
+  background: rgba(0, 0, 0, 0.8); /* Keep glassmorphism effect */
+  border: 1px solid #000000; /* Full border like header */
+  border-radius: 9999px; /* Rounded corners like header */
+  box-shadow: 0 0 3px 3px rgba(100, 100, 100, 0.5); /* Shadow like header */
+  margin: 2rem 10rem 1.5rem 10rem; /* Margin to separate from content and match header's horizontal margin */
+  backdrop-filter: blur(10px);
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+}
