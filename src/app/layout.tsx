@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: "Download your apps from trusted sources",
 };
 
+import Footer from '@/components/Footer';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,6 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
       >
         {children}
+        <Footer />
       </body>
     </html>
   );
