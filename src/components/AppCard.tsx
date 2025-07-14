@@ -7,30 +7,26 @@ interface AppCardProps {
     id: string; // Added for linking to detail page
     name: string;
     icon: string;
-    size: string;
-    downloads: string;
     version?: string;
-    developer: string; // Re-added developer prop
 }
 
-const AppCard = ({ id, name, icon, developer, size, downloads, version }: AppCardProps) => {
+const AppCard = ({ id, name, icon, version }: AppCardProps) => {
     return (
-        <Link href={`/app/${id}`} className="group relative">
-            {/* Hover glow effect */}
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-white/10 to-white/5 opacity-0
-                group-hover:opacity-100 blur-xl transition-all duration-500 group-hover:duration-200" />
-
-            {/* Card content */}
-            <div className="relative w-[120px] h-[150px] bg-white/5 backdrop-blur-sm rounded-xl p-3
-                flex flex-col items-center justify-center text-center
-                hover:bg-white/10 transition-all duration-300 border border-white/5
-                hover:border-white/20 hover:shadow-2xl hover:shadow-white/5">
-
-                {/* App icon */}
-                <div className="relative h-14 w-14 flex-shrink-0 transform group-hover:scale-110
-                    transition-transform duration-300 mb-2">
-                    <div className="absolute inset-0 bg-white/10 rounded-xl blur-lg
-                        opacity-0 group-hover:opacity-70 transition-opacity duration-300" />
+        <Link href={`/app/${id}`} className="group relative block">
+            {/* Enhanced hover glow */}
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 
+                opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            {/* Card content with zoom animation */}
+            <div className="relative w-full h-[120px] bg-gradient-to-br from-white/5 to-white/2 backdrop-blur-lg 
+                rounded-xl p-4 flex items-center gap-3 transition-all duration-300
+                border border-white/10 group-hover:border-white/30
+                shadow-md group-hover:shadow-lg group-hover:shadow-blue-500/20
+                transform group-hover:scale-[1.03]">
+                
+                {/* App icon with subtle shine */}
+                <div className="relative h-14 w-14 flex-shrink-0">
+                    <div className="absolute inset-0 bg-white/10 rounded-xl blur-[2px]" />
                     <Image
                         src={icon}
                         alt={name}
@@ -40,23 +36,20 @@ const AppCard = ({ id, name, icon, developer, size, downloads, version }: AppCar
                     />
                 </div>
 
-                {/* App name */}
-                <h3 className="text-white text-sm font-medium truncate w-full px-1
-                    group-hover:text-transparent group-hover:bg-gradient-to-r
-                    group-hover:from-white group-hover:to-gray-300 group-hover:bg-clip-text
-                    transition-all duration-300">{name}</h3>
-
-                {/* Version info */}
-                {version && <p className="text-gray-400 text-xs mt-1 truncate w-full px-1">v{version}</p>}
-
-                {/* Download button - appears on hover */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100
-                    transition-opacity duration-300 bg-black/50 rounded-xl">
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2
-                        transition-all duration-200 flex items-center justify-center">
-                        <Download size={20} />
-                    </button>
+                {/* App info */}
+                <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-medium truncate text-base">{name}</h3>
+                    {version && (
+                        <p className="text-gray-300 text-xs mt-1 font-mono tracking-tight">v{version}</p>
+                    )}
                 </div>
+
+                {/* Enhanced download button */}
+                <button className="bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 
+                    text-white rounded-full p-2.5 transition-all duration-200 shadow-md
+                    hover:shadow-blue-500/30 hover:scale-105 flex items-center justify-center">
+                    <Download size={18} strokeWidth={2} />
+                </button>
             </div>
         </Link>
     );
